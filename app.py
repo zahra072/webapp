@@ -1,71 +1,74 @@
 import streamlit as st
 from sqlalchemy import text
 
-list_doctor = ['', 'dr. Nurita', 'dr. Yogi', 'dr. Wibowo', 'dr. Ulama', 'dr. Ping']
-list_symptom = ['', 'male', 'female']
+list_dokter = ['', 'Dr. Arya', 'Dr. Sari', 'Dr. Jasmine', 'Dr. Fira', 'Dr. Sagara', 'Dr. Sio']
+list_jeniskelamin = ['', 'L', 'P']
 
 conn = st.connection("postgresql", type="sql", 
-                     url="postgresql://dewiputrisekarsari:L1uTrOhKb9kf@ep-little-moon-86388543.us-east-2.aws.neon.tech/web")
+                     url="postgresql://zahra072:gWSib8dZK3Gr@ep-solitary-wildflower-12608316.us-east-2.aws.neon.tech/webapp")
 with conn.session as session:
-    query = text('CREATE TABLE IF NOT EXISTS SCHEDULE (id serial, doctor_name varchar, patient_name varchar, gender char(25), \
-                                                       symptom text, handphone varchar, address text, tanggal date);')
+    query = text('CREATE TABLE IF NOT EXISTS SCHEDULE (No_Antrian serial,Tanggal_Periksa date, Nama varchar, Jenis_Kelamin char(25), Umur text, Pekerjaan varchar,\
+                                                        No_Telp varchar, Alamat varchar, Dokter varchar, Hasil_Diagnosa text);')
     session.execute(query)
 
-st.header('SIMPLE HOSPITAL DATA MANAGEMENT SYS')
+st.header('PUSKESMAS DATA MANAGEMENT')
 page = st.sidebar.selectbox("Pilih Menu", ["View Data","Edit Data"])
 
 if page == "View Data":
-    data = conn.query('SELECT * FROM schedule ORDER By id;', ttl="0").set_index('id')
+    data = conn.query('SELECT * FROM schedule ORDER By No_Antrian;', ttl="0").set_index('No_Antrian')
     st.dataframe(data)
 
 if page == "Edit Data":
     if st.button('Tambah Data'):
         with conn.session as session:
-            query = text('INSERT INTO schedule (doctor_name, patient_name, gender, symptom, handphone, address, waktu, tanggal) \
+            query = text('INSERT INTO schedule (No_Antrian,Tanggal_Periksa, Nama, Jenis_Kelamin, Umur, Pekerjaan, No_Telp, Alamat, Dokter, Hasil_Diagnosa) \
                           VALUES (:1, :2, :3, :4, :5, :6, :7, :8);')
             session.execute(query, {'1':'', '2':'', '3':'', '4':'[]', '5':'', '6':'', '7':None, '8':None})
             session.commit()
 
-    data = conn.query('SELECT * FROM schedule ORDER By id;', ttl="0")
+    data = conn.query('SELECT * FROM schedule ORDER By No_Antrian;', ttl="0")
     for _, result in data.iterrows():        
-        id = result['id']
-        doctor_name_lama = result["doctor_name"]
-        patient_name_lama = result["patient_name"]
-        gender_lama = result["gender"]
-        symptom_lama = result["symptom"]
-        handphone_lama = result["handphone"]
-        address_lama = result["address"]
-        waktu_lama = result["waktu"]
-        tanggal_lama = result["tanggal"]
+        No_Antrian = result ['No_Antrian'] ,
+        Tanggal_Periksa_Lama = result ['Tanggal_Periksa'],
+        Nama_Lama = result ['Nama'],
+        Jenis_Kelamin_Lama = result ['Jenis_Kelamin'],
+        Umur_Lama = result ['Umur'] ,
+        Pekerjaan_Lama = result ['Pekerjaan'] ,
+        No_Telp_Lama = result ['No_Telp'] ,
+        Alamat_Lama = result ['Alamat'],
+        Dokter_Lama = result ['Dokter'],
+        Hasil_Diagnosa_Lama = result ['Hasil_Diagnosa']
+        
 
-        with st.expander(f'a.n. {patient_name_lama}'):
-            with st.form(f'data-{id}'):
-                doctor_name_baru = st.selectbox("doctor_name", list_doctor, list_doctor.index(doctor_name_lama))
-                patient_name_baru = st.text_input("patient_name", patient_name_lama)
-                gender_baru = st.selectbox("gender", list_symptom, list_symptom.index(gender_lama))
-                symptom_baru = st.multiselect("symptom", ['cough', 'flu', 'headache', 'stomache'], eval(symptom_lama))
-                handphone_baru = st.text_input("handphone", handphone_lama)
-                address_baru = st.text_input("address", address_lama)
-                waktu_baru = st.time_input("waktu", waktu_lama)
-                tanggal_baru = st.date_input("tanggal", tanggal_lama)
-                
+        with st.expander(f'a.n. {Nama_Lama}'):
+            with st.form(f'data-{No_Antrian}'):
+                Tanggal_Periksa_baru = st.date_input("Tanggal_Periksa", Tanggal_Periksa_Lama)
+                Nama_baru = st.text_input("Nama", Nama_Lama)
+                Jenis_Kelamin_baru = st.selectbox("Jenis_Kelamin", list_Jenis_Kelamin, list_Jenis_Kelamin.index(Jenis_Kelamin_Lama))
+                Umur_baru = st.text_input("Umur", Umur_Lama)
+                Pekerjaan_baru = st.text_input("Pekerjaan", Pekerjaan_Lama)
+                No_Telp_baru = st.text_input("No_Telp", No_Telp_Lama)
+                Alamat_baru = st.text_input("Alamat", Alamat_Lama)
+                Dokter_baru = st.selectbox("Dokter", list_dokter, list_dokter.index(Dokter_Lama))
+                Hasil_Diagnosa_baru = st.text_input ("Hasil_Diagnosa", Hasil_Diagnosa_Lama)
+
                 col1, col2 = st.columns([1, 6])
 
                 with col1:
                     if st.form_submit_button('UPDATE'):
                         with conn.session as session:
                             query = text('UPDATE schedule \
-                                          SET doctor_name=:1, patient_name=:2, gender=:3, symptom=:4, \
-                                          handphone=:5, address=:6, waktu=:7, tanggal=:8 \
-                                          WHERE id=:9;')
-                            session.execute(query, {'1':doctor_name_baru, '2':patient_name_baru, '3':gender_baru, '4':str(symptom_baru), 
-                                                    '5':handphone_baru, '6':address_baru, '7':waktu_baru, '8':tanggal_baru, '9':id})
+                                          SET Tanggal_Pemeriksaan=:1, Nama=:2, Jenis_Kelamin=:3, \
+                                          Umur=:4, Pekerjaan=:5, No_Telp=:6, Alamat=:7, Dokter=:8, Hasil_Diagnosa=:9 \
+                                          WHERE No_Antrian=:10;')
+                            session.execute(query, {'1':Tanggal_Periksa_baru, '2':Nama_baru, '3':str(Jenis_Kelamin_baru), 
+                                                    '4':Umur_baru, '5':Pekerjaan_baru, '6':No_Telp_baru, '7':Alamat_baru, '9':str(Dokter_baru), '10':No_Antrian})
                             session.commit()
                             st.experimental_rerun()
                 
                 with col2:
                     if st.form_submit_button('DELETE'):
-                        query = text(f'DELETE FROM schedule WHERE id=:1;')
-                        session.execute(query, {'1':id})
+                        query = text(f'DELETE FROM schedule WHERE No_Antrian=:1;')
+                        session.execute(query, {'1':No_Antrian})
                         session.commit()
                         st.experimental_rerun()
