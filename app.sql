@@ -1,6 +1,6 @@
 drop table if exists schedule;
 create table schedule (
-	No_Antrian serial,
+	Id serial,
 	Tanggal_Periksa date,
 	Nama text,
 	Jenis_Kelamin text,
@@ -12,7 +12,7 @@ create table schedule (
 	Hasil_Diagnosa text
 );
 
-insert into schedule (No_Antrian,Tanggal_Periksa, Nama, Jenis_Kelamin, Umur, Pekerjaan,	No_Telp, Alamat, Dokter, Hasil_Diagnosa) 
+insert into schedule (Id,Tanggal_Periksa, Nama, Jenis_Kelamin, Umur, Pekerjaan,	No_Telp, Alamat, Dokter, Hasil_Diagnosa) 
 values
 	(1, '12-02-2023', 'Rara', 'P', '21', 'Pelajar', '08112152467', 'Jl. Wafello',	'Dr. Arya', 'Otitis media'),
 	(2,	'17-02-2023', 'Lisa', 'P', '23', 'Polisi',	'08213678645', 'Jl. Chip Chip', 'Dr. Arya', 'Otitis media'),
